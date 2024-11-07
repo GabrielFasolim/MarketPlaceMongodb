@@ -1,0 +1,51 @@
+# Dependências do Node
+node_modules/
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Arquivos de ambiente e de configuração
+.env
+.env.local
+.env.*.local
+
+# Cache do npm
+.npm
+
+# Cache do Yarn
+.yarn
+.pnp.*
+
+# Diretórios de IDEs e editores
+.idea/
+.vscode/
+*.sublime-workspace
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Output de build
+dist/
+build/
+
+# Arquivos temporários
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.old
+
+# Logs do MongoDB (caso você tenha logs locais)
+*.log
+
+# Configurações específicas de deploy
+*.env.production
+*.env.development
+
+# Outros arquivos pessoais
+*.log
