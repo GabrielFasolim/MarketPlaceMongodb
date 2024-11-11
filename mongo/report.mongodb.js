@@ -1,9 +1,7 @@
-db.transacao.find({ "produtos": { $type: "array" } }).limit(5);
+use("MarketPlaceDBEV");
 //Essa consulta calcula o valor total de vendas e a quantidade de transações para cada vendedor.
 db.transacao.aggregate([
-    {
-        $unwind: "$produtos"
-    },
+    { $unwind: "$produtos" },
     {
         $group: {
             _id: "$produtos.vendedor",
@@ -28,7 +26,8 @@ db.transacao.aggregate([
             quantidadeVendidaPeriodo: 1
         }
     }
-]);
+]).toArray();
+
 
 //Essa consulta calcula o total de vendas e a quantidade de produtos vendidos para cada vendedor em um determinado período. 
 //Para definir o período, é necessário alterar as datas em $gte e $lte.
@@ -185,3 +184,5 @@ db.transacao.aggregate([
     { $sort: { vendedor: 1, totalVendasProduto: -1 } }
   ]);
   
+
+console.log("aaa")
