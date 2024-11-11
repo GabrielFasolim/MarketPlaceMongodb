@@ -1,13 +1,14 @@
-
+db.transacao.find({ "produtos": { $type: "array" } }).limit(5);
 //Essa consulta calcula o valor total de vendas e a quantidade de transações para cada vendedor.
 db.transacao.aggregate([
-    { $unwind: "$produtos" },
+    {
+        $unwind: "$produtos"
+    },
     {
         $group: {
             _id: "$produtos.vendedor",
-            totalVendas: { $sum: "$produtos.total" },
-            quantidadeVendida: { $sum: "$produtos.quantidade" },
-            numeroTransacoes: { $sum: 1 }
+            totalVendasPeriodo: { $sum: "$produtos.total" },
+            quantidadeVendidaPeriodo: { $sum: "$produtos.quantidade" }
         }
     },
     {
@@ -23,9 +24,8 @@ db.transacao.aggregate([
         $project: {
             _id: 0,
             vendedor: "$vendedor.nome",
-            totalVendas: 1,
-            quantidadeVendida: 1,
-            numeroTransacoes: 1
+            totalVendasPeriodo: 1,
+            quantidadeVendidaPeriodo: 1
         }
     }
 ]);
@@ -70,13 +70,16 @@ db.transacao.aggregate([
 ]);
 
 
+
 //Essa consulta calcula a média de preço dos produtos vendidos por cada vendedor.
 db.transacao.aggregate([
     { $unwind: "$produtos" },
     {
         $group: {
             _id: "$produtos.vendedor",
-            mediaPrecoVenda: { $avg: "$produtos.preco" }
+            totalVendas: { $sum: "$produtos.total" },
+            quantidadeVendida: { $sum: "$produtos.quantidade" },
+            numeroTransacoes: { $sum: 1 }
         }
     },
     {
@@ -92,7 +95,9 @@ db.transacao.aggregate([
         $project: {
             _id: 0,
             vendedor: "$vendedor.nome",
-            mediaPrecoVenda: 1
+            totalVendas: 1,
+            quantidadeVendida: 1,
+            numeroTransacoes: 1
         }
     }
 ]);
