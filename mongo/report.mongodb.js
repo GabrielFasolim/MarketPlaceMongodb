@@ -1,5 +1,6 @@
 use("MarketPlaceDBEV");
-//Essa consulta calcula o valor total de vendas e a quantidade de transações para cada vendedor.
+
+// 1. Consulta para calcular o valor total de vendas e a quantidade de transações para cada vendedor.
 db.transacao.aggregate([
     { $unwind: "$produtos" },
     {
@@ -11,27 +12,24 @@ db.transacao.aggregate([
     },
     {
         $lookup: {
-            from: "usuario",
-            localField: "_id",
-            foreignField: "_id",
-            as: "vendedor"
+            from: "usuario",              
+            localField: "_id",             
+            foreignField: "_id",          
+            as: "vendedor"               
         }
     },
-    { $unwind: "$vendedor" },
+    { $unwind: { path: "$vendedor", preserveNullAndEmptyArrays: true } },  // Desfaz array, mantendo nulo se não existir
     {
         $project: {
             _id: 0,
-            vendedor: "$vendedor.nome",
+            vendedor: "$vendedor.nome",     
             totalVendasPeriodo: 1,
             quantidadeVendidaPeriodo: 1
         }
     }
 ]).toArray();
 
-
-//Essa consulta calcula o total de vendas e a quantidade de produtos vendidos para cada vendedor em um determinado período. 
-//Para definir o período, é necessário alterar as datas em $gte e $lte.
-
+// 2. Consulta para calcular o total de vendas e quantidade de produtos vendidos por cada vendedor em um determinado período.
 db.transacao.aggregate([
     {
         $match: {
@@ -57,7 +55,7 @@ db.transacao.aggregate([
             as: "vendedor"
         }
     },
-    { $unwind: "$vendedor" },
+    { $unwind: { path: "$vendedor", preserveNullAndEmptyArrays: true } },
     {
         $project: {
             _id: 0,
@@ -69,8 +67,7 @@ db.transacao.aggregate([
 ]);
 
 
-
-//Essa consulta calcula a média de preço dos produtos vendidos por cada vendedor.
+// 3. Consulta para calcular a média de preço dos produtos vendidos por cada vendedor.
 db.transacao.aggregate([
     { $unwind: "$produtos" },
     {
@@ -89,7 +86,7 @@ db.transacao.aggregate([
             as: "vendedor"
         }
     },
-    { $unwind: "$vendedor" },
+    { $unwind: { path: "$vendedor", preserveNullAndEmptyArrays: true } },
     {
         $project: {
             _id: 0,
@@ -101,15 +98,51 @@ db.transacao.aggregate([
     }
 ]);
 
-
-//Essa consulta gera uma lista dos produtos mais vendidos de cada vendedor, ordenando pela quantidade vendida.
-
 db.transacao.aggregate([
     { $unwind: "$produtos" },
     {
         $group: {
             _id: { vendedor: "$produtos.vendedor", produto: "$produtos.produto" },
             quantidadeVendida: { $sum: "$produtos.quantidade" }
+        }
+    },
+    {
+        $lookup: {
+            from: "produto",
+            localField: "_id.produto",
+            foreignField: "_id",
+            as: "produto"
+        }
+    },
+    { $unwind: { path: "$produto", preserveNullAndEmptyArrays: true } },
+    {
+        $lookup: {
+            from: "usuario",
+            localField: "_id.vendedor",
+            foreignField: "_id",
+            as: "vendedor"
+        }
+    },
+    { $unwind: { path: "$vendedor", preserveNullAndEmptyArrays: true } },
+    {
+        $project: {
+            _id: 0,
+            vendedor: "$vendedor.nome",
+            produto: "$produto.nome",
+            quantidadeVendida: 1
+        }
+    },
+    { $sort: { quantidadeVendida: -1 } }
+]);
+
+
+db.transacao.aggregate([
+    { $unwind: "$produtos" },
+    {
+        $group: {
+            _id: { vendedor: "$usuario", produto: "$produtos.produto" },
+            quantidadeVendida: { $sum: "$produtos.quantidade" },
+            totalVendasProduto: { $sum: "$produtos.total" }
         }
     },
     {
@@ -135,54 +168,9 @@ db.transacao.aggregate([
             _id: 0,
             vendedor: "$vendedor.nome",
             produto: "$produto.nome",
-            quantidadeVendida: 1
+            quantidadeVendida: 1,
+            totalVendasProduto: 1
         }
     },
-    { $sort: { quantidadeVendida: -1 } }
-]);
-
-
-//Essa consulta fornece um relatório detalhado com as vendas de cada produto de um vendedor específico, 
-//incluindo nome do produto, quantidade vendida, e valor total.
-
-db.transacao.aggregate([
-    { $unwind: "$produtos" },
-    {
-      $group: {
-        _id: { vendedor: "$produtos.vendedor", produto: "$produtos.produto" },
-        quantidadeVendida: { $sum: "$produtos.quantidade" },
-        totalVendasProduto: { $sum: "$produtos.total" }
-      }
-    },
-    {
-      $lookup: {
-        from: "produto",
-        localField: "_id.produto",
-        foreignField: "_id",
-        as: "produto"
-      }
-    },
-    { $unwind: "$produto" },
-    {
-      $lookup: {
-        from: "usuario",
-        localField: "_id.vendedor",
-        foreignField: "_id",
-        as: "vendedor"
-      }
-    },
-    { $unwind: "$vendedor" },
-    {
-      $project: {
-        _id: 0,
-        vendedor: "$vendedor.nome",
-        produto: "$produto.nome",
-        quantidadeVendida: 1,
-        totalVendasProduto: 1
-      }
-    },
     { $sort: { vendedor: 1, totalVendasProduto: -1 } }
-  ]);
-  
-
-console.log("aaa")
+]);
