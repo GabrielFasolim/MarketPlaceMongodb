@@ -525,7 +525,7 @@ db.runCommand({
             },
           },
         },
-        localizacao: {
+        localizacao_vendedor: {
           bsonType: "object",
           description: "Localização geográfica, opcional",
           properties: {
