@@ -66,27 +66,6 @@ db.createCollection("usuario", {
               bsonType: "string",
               description: "Deve ser uma string e é obrigatório.",
             },
-            localizacao: {
-              bsonType: "object",
-              description: "Localização geográfica, opcional",
-              properties: {
-                type: {
-                  bsonType: "string",
-                  enum: ["Point"],
-                  description: "Deve ser 'Point'",
-                },
-                coordinates: {
-                  bsonType: "array",
-                  minItems: 2,
-                  maxItems: 2,
-                  items: {
-                    bsonType: "double",
-                  },
-                  description:
-                    "Deve ser um array de 2 números [longitude, latitude]",
-                },
-              },
-            },
           },
         },
       },
@@ -141,27 +120,6 @@ db.createCollection("produto", {
             cid: {
               bsonType: "objectId",
               description: "Deve ser um ObjectId e é obrigatório.",
-            },
-          },
-        },
-        localizacao: {
-          bsonType: "object",
-          description: "Localização geográfica, opcional",
-          properties: {
-            type: {
-              bsonType: "string",
-              enum: ["Point"],
-              description: "Deve ser 'Point'",
-            },
-            coordinates: {
-              bsonType: "array",
-              minItems: 2,
-              maxItems: 2,
-              items: {
-                bsonType: "double",
-              },
-              description:
-                "Deve ser um array de 2 números [longitude, latitude]",
             },
           },
         },
@@ -418,6 +376,175 @@ db.createCollection("resposta_avaliacao", {
         data: {
           bsonType: "date",
           description: "Deve ser um date e é obrigatório",
+        },
+      },
+    },
+  },
+});
+
+db.runCommand({
+  collMod: "usuario",
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["nome", "email", "senha", "endereco"],
+      properties: {
+        nome: {
+          bsonType: "string",
+          description: "Deve ser uma string e é obrigatório.",
+        },
+        email: {
+          bsonType: "string",
+          description: "Deve ser uma string e é obrigatório.",
+        },
+        senha: {
+          bsonType: "string",
+          description: "Deve ser uma string e é obrigatório.",
+        },
+        endereco: {
+          bsonType: "object",
+          description: "Deve ser um objeto e é obrigatório.",
+          required: [
+            "logradouro",
+            "numero",
+            "bairro",
+            "cidade",
+            "estado",
+            "cep",
+            "pais",
+          ],
+          properties: {
+            logradouro: {
+              bsonType: "string",
+              description: "Deve ser uma string e é obrigatório.",
+            },
+            numero: {
+              bsonType: "string",
+              description: "Deve ser uma string e é obrigatório.",
+            },
+            complemento: {
+              bsonType: "string",
+              description: "Deve ser uma string e é opcional.",
+            },
+            bairro: {
+              bsonType: "string",
+              description: "Deve ser uma string e é obrigatório.",
+            },
+            cidade: {
+              bsonType: "string",
+              description: "Deve ser uma string e é obrigatório.",
+            },
+            estado: {
+              bsonType: "string",
+              description: "Deve ser uma string e é obrigatório.",
+            },
+            cep: {
+              bsonType: "string",
+              description: "Deve ser uma string e é obrigatório.",
+            },
+            pais: {
+              bsonType: "string",
+              description: "Deve ser uma string e é obrigatório.",
+            },
+            localizacao: {
+              bsonType: "object",
+              description: "Localização geográfica, opcional",
+              properties: {
+                type: {
+                  bsonType: "string",
+                  enum: ["Point"],
+                  description: "Deve ser 'Point'",
+                },
+                coordinates: {
+                  bsonType: "array",
+                  minItems: 2,
+                  maxItems: 2,
+                  items: {
+                    bsonType: "double",
+                  },
+                  description:
+                    "Deve ser um array de 2 números [longitude, latitude]",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+});
+
+db.runCommand({
+  collMod: "produto",
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: [
+        "nome",
+        "descricao",
+        "preco",
+        "quantidade",
+        "categoria",
+        "vendedor",
+      ],
+      properties: {
+        nome: {
+          bsonType: "string",
+          description: "Deve ser uma string e é obrigatório.",
+        },
+        descricao: {
+          bsonType: "string",
+          description: "Deve ser uma string e é obrigatório.",
+        },
+        preco: {
+          bsonType: "double",
+          description: "Deve ser um double e é obrigatório.",
+        },
+        quantidade: {
+          bsonType: "int",
+          minimum: 0,
+          description: "Deve ser um inteiro e é obrigatório.",
+        },
+        vendedor: {
+          bsonType: "objectId",
+          description: "Deve ser um objectId e é obrigatório.",
+        },
+        categoria: {
+          bsonType: "object",
+          description: "Deve ser um object e é obrigatório.",
+          required: ["nome", "cid"],
+          properties: {
+            nome: {
+              bsonType: "string",
+              minLength: 1,
+              description: "Deve ser uma string e é obrigatório.",
+            },
+            cid: {
+              bsonType: "objectId",
+              description: "Deve ser um ObjectId e é obrigatório.",
+            },
+          },
+        },
+        localizacao: {
+          bsonType: "object",
+          description: "Localização geográfica, opcional",
+          properties: {
+            type: {
+              bsonType: "string",
+              enum: ["Point"],
+              description: "Deve ser 'Point'",
+            },
+            coordinates: {
+              bsonType: "array",
+              minItems: 2,
+              maxItems: 2,
+              items: {
+                bsonType: "double",
+              },
+              description:
+                "Deve ser um array de 2 números [longitude, latitude]",
+            },
+          },
         },
       },
     },
